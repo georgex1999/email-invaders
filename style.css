@@ -17,8 +17,9 @@ body {
 #instructions {
   font-size: 1.2em;
   margin-bottom: 20px;
+  margin-top:16px;
   text-align: center;
-  width: 80%;
+  width: 100%;
 }
 
 #gameContainer {
@@ -33,12 +34,12 @@ body {
 
 .logo {
   margin-top: 3rem;
-  width: 299px;
-  height: 55px;
+  width: 409px;
+  height: 71px;
   margin-bottom: 8px;
-  background-image: url('https://i.ibb.co/VgvddS9/email-attack-type-white.png'); /* Replace with logo image URL */
+  background-image: url('./assets/email-attack.svg'); /* Replace with logo image URL */
   background-repeat: no-repeat;
-  background-size: 299px 52.75px;
+  background-size: 409px 71px;
 }
 
 #georgeface {
