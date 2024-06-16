@@ -55,9 +55,9 @@ body {
 .obstacle {
   position: absolute;
   top: 50%;
-  width: 40px;
-  height: 40px;
-  background-image: url('https://i.ibb.co/g7JtcZj/email-envelope.png'); /* Replace with cardboard box image URL */
+  width: 41px;
+  height: 29px;
+  background-image: url('./assets/envelope.svg'); /* Replace with cardboard box image URL */
   background-size: cover;
   top: 50%; /* Initial positioning to avoid overlapping */
 }
