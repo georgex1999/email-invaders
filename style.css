@@ -6,9 +6,10 @@ body {
   background-color: #5429ff;
   font-family: arial;
   color: #fff;
-  background-image: url('https://svgshare.com/i/17JQ.svg');
+  background-image: url('./assets/background-bars.svg');
   background-repeat: no-repeat;
-  background-position: 0% 25%;
+  /* background-position: 0% 10%; */
+  background-size: cover;
   min-height: 100vh;
   min-width: 100vw;
 }
@@ -79,8 +80,8 @@ body {
   background-position: center;
   width: 600px;
   height: 400px;
-  background-image: url('https://i.ibb.co/drGKFvD/Game-over.png'); /* Replace with your game over image URL */
-  background-size: 235px 135px;
+  background-image: url('./assets/game-over.svg'); /* Replace with your game over image URL */
+  background-size: 248px 135px;
   background-repeat: no-repeat;
 }
 
