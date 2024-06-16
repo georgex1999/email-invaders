@@ -105,8 +105,9 @@ body {
   position: absolute;
   top: 20px;
   right: 20px;
-  font-size: 1.25em;
+  font-size: 1em;
   font-family: monospace;
+  color: #fff;
 }
 
 #startButton {
@@ -115,10 +116,12 @@ body {
   left: 50%;
   transform: translate(-50%, -50%);
   padding: 10px 40px;
-  font-size: 1.25em;
+  font-size: 1em;
   cursor: pointer;
   display: block;
-  border-radius: 12px;
+  border-radius: 0px;
+  color: #5429FF;
+  font-family: monospace;
 }
 
 #mobileMessage {
