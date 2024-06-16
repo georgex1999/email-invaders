@@ -1,0 +1,98 @@
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #5429ff;
+  font-family: arial;
+  color: #fff;
+  background-image: url('https://svgshare.com/i/17JQ.svg');
+  background-repeat: no-repeat;
+  background-position: 0% 25%;
+  min-height: 100vh;
+  min-width: 100vw;
+}
+
+#instructions {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  text-align: center;
+  width: 80%;
+}
+
+#gameContainer {
+  position: relative;
+  width: 600px;
+  height: 400px;
+  border: 0px solid #000;
+  background-color: #180c49;
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+.logo {
+  margin-top: 3rem;
+  width: 299px;
+  height: 55px;
+  margin-bottom: 8px;
+  background-image: url('https://i.ibb.co/VgvddS9/email-attack-type-white.png'); /* Replace with logo image URL */
+  background-repeat: no-repeat;
+  background-size: 299px 52.75px;
+}
+
+#georgeface {
+  position: absolute;
+  bottom: 20px;
+  left: 60px;
+  width: 60px;
+  height: 60px;
+  background-image: url('https://i.ibb.co/JnrpZ8k/GL-face.png'); /* Replace with your face image URL */
+  background-size: cover;
+}
+
+.obstacle {
+  position: absolute;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  background-image: url('https://i.ibb.co/g7JtcZj/email-envelope.png'); /* Replace with cardboard box image URL */
+  background-size: cover;
+  top: 50%; /* Initial positioning to avoid overlapping */
+}
+
+#obstacle1 {
+  right: 0;
+}
+#obstacle2 {
+  right: 150px;
+}
+#obstacle3 {
+  right: 300px;
+}
+#obstacle4 {
+  right: 450px;
+}
+
+#gameOverMessage {
+  display: none;
+  position: absolute;
+  background-position: center;
+  width: 600px;
+  height: 400px;
+  background-image: url('https://i.ibb.co/drGKFvD/Game-over.png'); /* Replace with your game over image URL */
+  background-size: 235px 135px;
+  background-repeat: no-repeat;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
