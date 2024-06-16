@@ -29,10 +29,10 @@ body {
   border: 0px solid #000;
   background-color: #180c49;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: 12px;
 }
 
-.logo {
+.logo {   
   margin-top: 3rem;
   width: 409px;
   height: 71px;
@@ -60,6 +60,8 @@ body {
   background-image: url('./assets/envelope.svg'); /* Replace with cardboard box image URL */
   background-size: cover;
   top: 50%; /* Initial positioning to avoid overlapping */
+  top: -100px; /* Position off-screen initially */
+  left: -100px; /* Position off-screen initially */
 }
 
 #obstacle1 {
@@ -97,4 +99,24 @@ body {
   75% {
     transform: translateX(5px);
   }
+}
+
+#score {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 1.25em;
+  font-family: monospace;
+}
+
+#startButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px 40px;
+  font-size: 1.25em;
+  cursor: pointer;
+  display: block;
+  border-radius: 12px;
 }

@@ -2,12 +2,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const georgeface = document.getElementById('georgeface');
   const obstacles = document.querySelectorAll('.obstacle');
   const gameOverMessage = document.getElementById('gameOverMessage');
+  const scoreElement = document.getElementById('score');
+  const startButton = document.getElementById('startButton');
   let georgefaceBottom = 20;
   let gameOver = false;
+  let score = 0;
   const initialSpeeds = [5, 6, 7, 8];
   let obstacleSpeeds = [...initialSpeeds];
   const speedIncrementInterval = 5000; // Increase speed every 5 seconds
   const sadFaceURL = 'https://i.ibb.co/PDLC7T4/Face-hit2.png'; // Replace with your sad face image URL
+  let moveObstaclesInterval;
+  let increaseSpeedInterval;
 
   function control(e) {
     if (gameOver) return;
@@ -47,6 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         obstacle.style.top = `${newTop}px`;
+        score += 10; // Increase score when obstacle is repositioned
+        scoreElement.textContent = `Score: ${score}`;
       }
       obstacle.style.left = obstacleLeft + 'px';
       checkCollision(obstacle);
@@ -85,11 +92,15 @@ document.addEventListener('DOMContentLoaded', () => {
     georgeface.style.bottom = georgefaceBottom + 'px';
     georgeface.style.backgroundImage =
       'url("https://i.ibb.co/JnrpZ8k/GL-face.png")'; // Replace with your face image URL
-    obstacles.forEach((obstacle, index) => {
-      obstacle.style.left = '600px';
-      obstacle.style.top = `${Math.random() * 370}px`;
-    });
+    setObstaclePositions();
     obstacleSpeeds = [...initialSpeeds]; // Reset speeds to initial values
+    score = 0; // Reset score
+    scoreElement.textContent = `Score: ${score}`;
+    startButton.style.display = 'block'; // Show the start button
+
+    // Clear intervals to stop obstacle movement and speed increase
+    clearInterval(moveObstaclesInterval);
+    clearInterval(increaseSpeedInterval);
   }
 
   function increaseSpeed() {
@@ -97,6 +108,20 @@ document.addEventListener('DOMContentLoaded', () => {
     obstacleSpeeds = obstacleSpeeds.map((speed) => speed + 1);
   }
 
-  setInterval(moveObstacles, 50);
-  setInterval(increaseSpeed, speedIncrementInterval);
+  function setObstaclePositions() {
+    obstacles.forEach((obstacle) => {
+      obstacle.style.left = '600px';
+      obstacle.style.top = `${Math.random() * 370}px`;
+    });
+  }
+
+  startButton.addEventListener('click', () => {
+    startButton.style.display = 'none';
+    setObstaclePositions(); // Set random positions at the start
+    moveObstaclesInterval = setInterval(moveObstacles, 50);
+    increaseSpeedInterval = setInterval(increaseSpeed, speedIncrementInterval);
+  });
+
+  // Hide the start button initially until the game is reset
+  startButton.style.display = 'block';
 });
