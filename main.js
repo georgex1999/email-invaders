@@ -1,127 +1,219 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const georgeface = document.getElementById('georgeface');
-  const obstacles = document.querySelectorAll('.obstacle');
-  const gameOverMessage = document.getElementById('gameOverMessage');
-  const scoreElement = document.getElementById('score');
-  const startButton = document.getElementById('startButton');
-  let georgefaceBottom = 20;
-  let gameOver = false;
-  let score = 0;
-  const initialSpeeds = [5, 6, 7, 8];
-  let obstacleSpeeds = [...initialSpeeds];
-  const speedIncrementInterval = 5000; // Increase speed every 5 seconds
-  const sadFaceURL = 'https://i.ibb.co/PDLC7T4/Face-hit2.png'; // Replace with your sad face image URL
-  let moveObstaclesInterval;
-  let increaseSpeedInterval;
+	let score = 0;
+	let playerName = '';
+	let currentLevel = 1;
+	let maxLevel = 3;
+	let gameLoop;
+	let obstacleSpeed = 4;
+	let isGameOver = false;
+	const numObstacles = 3;
+	const obstacles = [];
+	
+	const georgeface = document.getElementById('georgeface');
+	const continueButton = document.getElementById('continueButton');
+	const viewLeaderboardButton = document.getElementById('viewLeaderboardButton');
+	const backToGameOverButton = document.getElementById('backToGameOverButton');
+	const restartButton = document.getElementById('restartButton');
+	const gameOverOverlay = document.getElementById('gameOverOverlay');
+	const leaderboardOverlay = document.getElementById('leaderboardOverlay');
+	const scoreElement = document.getElementById('score');
+	
+	function createObstacles() {
+		const gameContainer = document.getElementById('gameContainer');
+		const obstacle1 = document.getElementById('obstacle1');
+		obstacles.push(obstacle1);
+		
+		for (let i = 1; i < numObstacles; i++) {
+			const obstacle = document.createElement('div');
+			obstacle.className = 'obstacle';
+			obstacle.style.backgroundImage = 'url("./assets/envelope.svg")';
+			obstacle.style.backgroundSize = 'contain';
+			obstacle.style.backgroundRepeat = 'no-repeat';
+			obstacle.style.width = '50px';
+			obstacle.style.height = '50px';
+			obstacle.style.position = 'absolute';
+			obstacle.style.left = '900px';
+			obstacle.style.top = Math.floor(Math.random() * 500) + 'px';
+			gameContainer.appendChild(obstacle);
+			obstacles.push(obstacle);
+		}
+	}
 
-  function control(e) {
-    if (gameOver) return;
-    if (e.key === 'ArrowUp') {
-      if (georgefaceBottom < 350) georgefaceBottom += 10;
-    } else if (e.key === 'ArrowDown') {
-      if (georgefaceBottom > 0) georgefaceBottom -= 10;
-    }
-    georgeface.style.bottom = georgefaceBottom + 'px';
-  }
+	if (!localStorage.getItem('leaderboard')) {
+		localStorage.setItem('leaderboard', JSON.stringify([
+			{ name: 'Taran', score: 300 }
+		]));
+	}
 
-  document.addEventListener('keydown', control);
+	function updateLeaderboard() {
+		const leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+		const leaderboardList = document.getElementById('leaderboardList');
+		leaderboardList.innerHTML = leaderboard
+			.sort((a, b) => b.score - a.score)
+			.slice(0, 10)
+			.map((entry, index) => `${index + 1}. ${entry.name}: ${entry.score}`)
+			.join('<br>');
+	}
 
-  function moveObstacles() {
-    if (gameOver) return;
-    obstacles.forEach((obstacle, index) => {
-      let obstacleLeft = parseInt(obstacle.style.left || 600);
-      obstacleLeft -= obstacleSpeeds[index];
-      if (obstacleLeft < -30) {
-        obstacleLeft = 600;
-        let newTop;
-        let validPosition = false;
+	function startGame() {
+		playerName = document.getElementById('playerNameInput').value;
+		if (!playerName) {
+			alert('Please enter your name!');
+			return;
+		}
+		
+		score = 0;
+		currentLevel = 1;
+		obstacleSpeed = 4;
+		isGameOver = false;
+		
+		document.getElementById('startOverlay').style.display = 'none';
+		document.getElementById('loadingScreen').style.display = 'none';
+		gameOverOverlay.style.display = 'none';
+		leaderboardOverlay.style.display = 'none';
+		
+		georgeface.style.top = '250px';
+		
+		if (obstacles.length === 0) {
+			createObstacles();
+		}
+		
+		obstacles.forEach((obstacle, index) => {
+			obstacle.style.left = (900 + (index * 300)) + 'px';
+			obstacle.style.top = Math.floor(Math.random() * 500) + 'px';
+		});
+		
+		updateLevel(1);
+		
+		scoreElement.textContent = 'Score: 0';
+		
+		if (gameLoop) clearInterval(gameLoop);
+		
+		moveObstacles();
+	}
 
-        while (!validPosition) {
-          newTop = Math.random() * 370;
-          validPosition = true;
+	function moveObstacles() {
+		const positions = obstacles.map(obstacle => parseInt(obstacle.style.left) || 900);
+		const speeds = obstacles.map((_, index) => obstacleSpeed + (index * 0.5));
+		
+		gameLoop = setInterval(() => {
+			if (isGameOver) return;
+			
+			obstacles.forEach((obstacle, index) => {
+				positions[index] -= speeds[index];
+				obstacle.style.left = positions[index] + 'px';
+				
+				const playerRect = georgeface.getBoundingClientRect();
+				const obstacleRect = obstacle.getBoundingClientRect();
+				
+				if (
+					playerRect.left < obstacleRect.right &&
+					playerRect.right > obstacleRect.left &&
+					playerRect.top < obstacleRect.bottom &&
+					playerRect.bottom > obstacleRect.top
+				) {
+					gameOver();
+					return;
+				}
+				
+				if (positions[index] <= -50) {
+					positions[index] = 900;
+					obstacle.style.left = positions[index] + 'px';
+					obstacle.style.top = Math.floor(Math.random() * 500) + 'px';
+					updateScore();
+				}
+			});
+		}, 16);
+	}
 
-          // Check for overlap with other obstacles
-          obstacles.forEach((otherObstacle) => {
-            if (otherObstacle !== obstacle) {
-              const otherTop = parseInt(otherObstacle.style.top);
-              if (Math.abs(newTop - otherTop) < 50) {
-                validPosition = false;
-              }
-            }
-          });
-        }
+	function updateLevel(level) {
+		const container = document.getElementById('gameContainer');
+		
+		switch(level) {
+			case 1:
+				container.style.background = 'url("./assets/level1-background.png") no-repeat center center';
+				container.style.backgroundSize = 'cover';
+				obstacleSpeed = 4;
+				break;
+			case 2:
+				container.style.background = 'url("./assets/background-new.png") no-repeat center center';
+				container.style.backgroundSize = 'cover';
+				obstacleSpeed = 5.5;
+				break;
+			case 3:
+				container.style.background = 'url("./assets/background-bars.svg") no-repeat center center';
+				container.style.backgroundSize = 'cover';
+				obstacleSpeed = 7;
+				break;
+		}
+	}
 
-        obstacle.style.top = `${newTop}px`;
-        score += 10; // Increase score when obstacle is repositioned
-        scoreElement.textContent = `Score: ${score}`;
-      }
-      obstacle.style.left = obstacleLeft + 'px';
-      checkCollision(obstacle);
-    });
-  }
+	function checkLevelProgress() {
+		const newLevel = Math.floor(score / 30) + 1;
+		if (newLevel <= maxLevel && newLevel !== currentLevel) {
+			currentLevel = newLevel;
+			updateLevel(currentLevel);
+			
+			const levelMessage = document.createElement('div');
+			levelMessage.textContent = `Level ${currentLevel}!`;
+			levelMessage.style.position = 'absolute';
+			levelMessage.style.top = '50%';
+			levelMessage.style.left = '50%';
+			levelMessage.style.transform = 'translate(-50%, -50%)';
+			levelMessage.style.color = '#fff';
+			levelMessage.style.fontSize = '3em';
+			levelMessage.style.fontFamily = 'monospace';
+			levelMessage.style.zIndex = '1000';
+			document.getElementById('gameContainer').appendChild(levelMessage);
+			
+			setTimeout(() => levelMessage.remove(), 2000);
+		}
+	}
 
-  function checkCollision(obstacle) {
-    const georgefaceRect = georgeface.getBoundingClientRect();
-    const obstacleRect = obstacle.getBoundingClientRect();
+	function updateScore() {
+		score++;
+		scoreElement.textContent = `Score: ${score}`;
+		checkLevelProgress();
+	}
 
-    if (
-      georgefaceRect.left < obstacleRect.right &&
-      georgefaceRect.right > obstacleRect.left &&
-      georgefaceRect.top < obstacleRect.bottom &&
-      georgefaceRect.bottom > obstacleRect.top
-    ) {
-      gameOver = true;
-      shakeGeorgeface();
-      georgeface.style.backgroundImage = `url('${sadFaceURL}')`;
-      gameOverMessage.style.display = 'block';
-      setTimeout(resetGame, 2000);
-    }
-  }
+	function gameOver() {
+		isGameOver = true;
+		clearInterval(gameLoop);
+		document.getElementById('finalScore').textContent = `Score: ${score}`;
+		gameOverOverlay.style.display = 'flex';
+		
+		const leaderboard = JSON.parse(localStorage.getItem('leaderboard') || '[]');
+		leaderboard.push({ name: playerName, score: score });
+		leaderboard.sort((a, b) => b.score - a.score);
+		localStorage.setItem('leaderboard', JSON.stringify(leaderboard.slice(0, 10)));
+		updateLeaderboard();
+	}
 
-  function shakeGeorgeface() {
-    georgeface.style.animation = 'shake 0.5s';
-    setTimeout(() => {
-      georgeface.style.animation = '';
-    }, 500);
-  }
+	continueButton.addEventListener('click', startGame);
+	
+	viewLeaderboardButton.addEventListener('click', () => {
+		gameOverOverlay.style.display = 'none';
+		leaderboardOverlay.style.display = 'flex';
+		updateLeaderboard();
+	});
+	
+	backToGameOverButton.addEventListener('click', () => {
+		leaderboardOverlay.style.display = 'none';
+		gameOverOverlay.style.display = 'flex';
+	});
+	
+	restartButton.addEventListener('click', startGame);
 
-  function resetGame() {
-    gameOver = false;
-    gameOverMessage.style.display = 'none';
-    georgefaceBottom = 20;
-    georgeface.style.bottom = georgefaceBottom + 'px';
-    georgeface.style.backgroundImage =
-      'url("https://i.ibb.co/JnrpZ8k/GL-face.png")'; // Replace with your face image URL
-    setObstaclePositions();
-    obstacleSpeeds = [...initialSpeeds]; // Reset speeds to initial values
-    score = 0; // Reset score
-    scoreElement.textContent = `Score: ${score}`;
-    startButton.style.display = 'block'; // Show the start button
-
-    // Clear intervals to stop obstacle movement and speed increase
-    clearInterval(moveObstaclesInterval);
-    clearInterval(increaseSpeedInterval);
-  }
-
-  function increaseSpeed() {
-    if (gameOver) return;
-    obstacleSpeeds = obstacleSpeeds.map((speed) => speed + 1);
-  }
-
-  function setObstaclePositions() {
-    obstacles.forEach((obstacle) => {
-      obstacle.style.left = '600px';
-      obstacle.style.top = `${Math.random() * 370}px`;
-    });
-  }
-
-  startButton.addEventListener('click', () => {
-    startButton.style.display = 'none';
-    setObstaclePositions(); // Set random positions at the start
-    moveObstaclesInterval = setInterval(moveObstacles, 50);
-    increaseSpeedInterval = setInterval(increaseSpeed, speedIncrementInterval);
-  });
-
-  // Hide the start button initially until the game is reset
-  startButton.style.display = 'block';
+	document.addEventListener('keydown', (e) => {
+		if (isGameOver) return;
+		
+		const currentTop = parseInt(georgeface.style.top) || 250;
+		
+		if (e.key === 'ArrowUp' && currentTop > 0) {
+			georgeface.style.top = (currentTop - 20) + 'px';
+		}
+		if (e.key === 'ArrowDown' && currentTop < 500) {
+			georgeface.style.top = (currentTop + 20) + 'px';
+		}
+	});
 });

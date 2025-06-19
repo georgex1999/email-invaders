@@ -6,16 +6,36 @@
   <title>Email Attack</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body style="background:#000;">
   <div id="mobileMessage">
     <div class="mobileText">This game doesn't currently work on mobile sorry! I hope to make a version that does soon.</div>
   </div>
-  <div class="logo"></div>
-  <div id="instructions">
-    <img src="./assets/instructions.svg">
-  </div>
-  <div id="gameContainer">
-    <button id="startButton">Start Game</button>
+  <div id="gameContainer" style="width:900px;height:600px;background:#5429ff;border-radius:16px;overflow:hidden;position:relative;">
+    <div id="loadingScreen" style="position:absolute;top:0;left:0;width:100%;height:100%;background:url('./assets/loading-screen.png') no-repeat center center;background-size:100% 100%;z-index:1;"></div>
+    <div id="startOverlay" style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:2;">
+      <div style="background:rgba(24,12,73,0.92);padding:32px 48px;border-radius:16px;text-align:center;width:400px;">
+        <div style="color:#fff;font-family:monospace;font-size:2em;margin-bottom:24px;">How to Play</div>
+        <ul style="color:#fff;font-family:monospace;font-size:1.2em;text-align:left;margin:0 0 24px 0;padding:0;list-style-type:none;">
+          <li style="margin-bottom:12px;">• Use <b>Up</b> and <b>Down</b> arrow keys to move</li>
+          <li style="margin-bottom:12px;">• Dodge the envelopes!</li>
+          <li>• Try to get the highest score</li>
+        </ul>
+        <input id="playerNameInput" type="text" placeholder="Enter your name" maxlength="16" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid #ccc;font-size:1.1em;font-family:monospace;margin-top:12px;box-sizing:border-box;" />
+        <button id="continueButton" style="width:100%;margin-top:24px;padding:12px;font-size:1.2em;border-radius:6px;border:none;background:#5429ff;color:#fff;cursor:pointer;font-family:monospace;">Start Game</button>
+      </div>
+    </div>
+    <div id="gameOverOverlay" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(24,12,73,0.96);z-index:2000;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+      <img src="./assets/game-over.svg" alt="Game Over" style="width:400px;margin-bottom:32px;" />
+      <div id="finalScore" style="color:#fff;font-family:monospace;font-size:2em;margin-bottom:24px;">Score: 0</div>
+      <button id="viewLeaderboardButton" style="margin:12px;padding:12px 36px;font-size:1.2em;border-radius:8px;border:none;background:#5429ff;color:#fff;cursor:pointer;font-family:monospace;">View Leaderboard</button>
+      <button id="restartButton" style="margin:12px;padding:12px 36px;font-size:1.2em;border-radius:8px;border:none;background:#5429ff;color:#fff;cursor:pointer;font-family:monospace;">Restart</button>
+    </div>
+    <div id="leaderboardOverlay" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(24,12,73,0.96);z-index:2000;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+      <div style="color:#fff;font-family:monospace;font-size:2em;margin-bottom:36px;">Leaderboard</div>
+      <div id="leaderboardList" style="color:#fff;font-family:monospace;font-size:1.2em;margin-bottom:36px;"></div>
+      <button id="backToGameOverButton" style="margin:12px;padding:12px 36px;font-size:1.2em;border-radius:8px;border:none;background:#5429ff;color:#fff;cursor:pointer;font-family:monospace;">Back</button>
+    </div>
+    <a href="http://www.georgelongwill.com" target="_blank" style="position:absolute;bottom:12px;right:12px;font-family:monospace;color:#fff;text-decoration:none;">www.georgelongwill.com</a>
     <div id="georgeface"></div>
     <div class="obstacle" id="obstacle1"></div>
     <div class="obstacle" id="obstacle2"></div>
@@ -23,6 +43,10 @@
     <div class="obstacle" id="obstacle4"></div>
     <div id="gameOverMessage"></div>
     <div id="score">Score: 0</div>
+    <div id="leaderboardContainer" style="display:none;"></div>
+  </div>
+  <div style="margin-top: 20px; text-align: center;">
+    <a href="https://www.georgelongwill.com" target="_blank" rel="noopener noreferrer">www.georgelongwill.com</a>
   </div>
   <script src="main.js"></script>
 </body>
