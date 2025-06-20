@@ -12,16 +12,17 @@
   </div>
   <div id="gameContainer" style="width:900px;height:600px;background:#5429ff;border-radius:16px;overflow:hidden;position:relative;">
     <div id="loadingScreen" style="position:absolute;top:0;left:0;width:100%;height:100%;background:url('./assets/loading-screen.png') no-repeat center center;background-size:100% 100%;z-index:1;"></div>
-    <div id="startOverlay" style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;z-index:2;">
-      <div style="background:rgba(24,12,73,0.92);padding:32px 48px;border-radius:16px;text-align:center;width:400px;">
-        <div style="color:#fff;font-family:monospace;font-size:2em;margin-bottom:24px;">How to Play</div>
-        <ul style="color:#fff;font-family:monospace;font-size:1.2em;text-align:left;margin:0 0 24px 0;padding:0;list-style-type:none;">
-          <li style="margin-bottom:12px;">• Use <b>Up</b> and <b>Down</b> arrow keys to move</li>
-          <li style="margin-bottom:12px;">• Dodge the envelopes!</li>
+    <div id="score" style="position:absolute;top:16px;right:16px;background:rgba(0,0,0,0.85);padding:8px 16px;border-radius:8px;color:#fff;font-family:monospace;font-size:1.2em;z-index:3;">Score: 0</div>
+    <div id="startOverlay" style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;align-items:flex-end;justify-content:center;z-index:2;padding-bottom:12px;">
+      <div style="background:rgba(0,0,0,0.85);padding:24px 32px;border-radius:12px;text-align:center;width:300px;margin-bottom:16px;">
+        <div style="color:#fff;font-family:monospace;font-size:1.6em;margin-bottom:16px;">How to Play</div>
+        <ul style="color:#fff;font-family:monospace;font-size:1em;text-align:left;margin:0 0 16px 0;padding:0;list-style-type:none;">
+          <li style="margin-bottom:8px;">• Use <b>Up</b> and <b>Down</b> arrow keys to move</li>
+          <li style="margin-bottom:8px;">• Dodge the envelopes!</li>
           <li>• Try to get the highest score</li>
         </ul>
-        <input id="playerNameInput" type="text" placeholder="Enter your name" maxlength="16" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid #ccc;font-size:1.1em;font-family:monospace;margin-top:12px;box-sizing:border-box;" />
-        <button id="continueButton" style="width:100%;margin-top:24px;padding:12px;font-size:1.2em;border-radius:6px;border:none;background:#5429ff;color:#fff;cursor:pointer;font-family:monospace;">Start Game</button>
+        <input id="playerNameInput" type="text" placeholder="Enter your name" maxlength="16" style="width:100%;padding:8px 12px;border-radius:6px;border:1px solid #ccc;font-size:1em;font-family:monospace;margin-top:8px;box-sizing:border-box;" />
+        <button id="continueButton" style="width:100%;margin-top:16px;padding:8px;font-size:1em;border-radius:6px;border:none;background:#5429ff;color:#fff;cursor:pointer;font-family:monospace;">Start Game</button>
       </div>
     </div>
     <div id="gameOverOverlay" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(24,12,73,0.96);z-index:2000;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
@@ -42,8 +43,11 @@
     <div class="obstacle" id="obstacle3"></div>
     <div class="obstacle" id="obstacle4"></div>
     <div id="gameOverMessage"></div>
-    <div id="score">Score: 0</div>
     <div id="leaderboardContainer" style="display:none;"></div>
+    <div id="mobileControls">
+      <button id="mobileUpBtn">▲</button>
+      <button id="mobileDownBtn">▼</button>
+    </div>
   </div>
   <div style="margin-top: 20px; text-align: center;">
     <a href="https://www.georgelongwill.com" target="_blank" rel="noopener noreferrer">www.georgelongwill.com</a>
