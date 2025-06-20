@@ -118,23 +118,6 @@ body {
   font-family: monospace;
 }
 
-#mobileMessage {
-  display: none;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgb(106, 0, 255, .9);
-  color: white;
-  margin: 1rem;
-  padding: 2.5rem;
-  font-size: 1.5em;
-  text-align: left;
-  z-index: 1000;
-}
-
-.mobileText {
-  padding: 2rem;
-}
-
 @media (max-width: 768px) {
   #gameContainer {
     display: none;
