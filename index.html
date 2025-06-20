@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Email Attack</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body style="background:#000;">
   <div id="gameContainer" style="width:900px;height:600px;background:#5429ff;border-radius:16px;overflow:hidden;position:relative;">
@@ -33,7 +34,12 @@
       <div id="leaderboardList" style="color:#fff;font-family:monospace;font-size:1.2em;margin-bottom:36px;"></div>
       <button id="backToGameOverButton" style="margin:12px;padding:12px 36px;font-size:1.2em;border-radius:8px;border:none;background:#5429ff;color:#fff;cursor:pointer;font-family:monospace;">Back</button>
     </div>
-    <a href="http://www.georgelongwill.com" target="_blank" style="position:absolute;bottom:12px;right:12px;font-family:monospace;color:#fff;text-decoration:none;">www.georgelongwill.com</a>
+    <div id="winOverlay" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(24,12,73,0.96);z-index:2000;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+      <div style="color:#fff;font-family:monospace;font-size:2.5em;margin-bottom:36px;">Congratulations!</div>
+      <div style="color:#fff;font-family:monospace;font-size:1.5em;margin-bottom:36px;">You reached 500 points!</div>
+      <button id="continueAfterWinButton" style="margin:12px;padding:12px 36px;font-size:1.2em;border-radius:8px;border:none;background:#5429ff;color:#fff;cursor:pointer;font-family:monospace;">Continue</button>
+    </div>
+    <div id="livesContainer"></div>
     <div id="georgeface"></div>
     <div class="obstacle" id="obstacle1"></div>
     <div class="obstacle" id="obstacle2"></div>
@@ -47,7 +53,7 @@
     </div>
   </div>
   <div style="margin-top: 20px; text-align: center;">
-    <a href="https://www.georgelongwill.com" target="_blank" rel="noopener noreferrer">www.georgelongwill.com</a>
+    <a href="https://www.georgelongwill.com" target="_blank" rel="noopener noreferrer" class="external-link">www.georgelongwill.com</a>
   </div>
   <script src="main.js"></script>
 </body>

@@ -43,6 +43,7 @@ body {
   height: 80px;
   background-image: url('./assets/gl-face.png'); /* Use local face image */
   background-size: cover;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
 }
 
 .obstacle {
@@ -97,11 +98,28 @@ body {
 
 #score {
   position: absolute;
-  top: 30px;
-  right: 30px;
+  top: 16px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 12px 16px;
+  border-radius: 8px;
   font-size: 1.2em;
   font-family: monospace;
-  color: #fff;
+}
+
+#livesContainer {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(0, 0, 0, 0.7);
+  color: red;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 1.2em;
+  font-family: monospace;
+  display: flex;
+  align-items: center;
 }
 
 #startButton {
@@ -179,9 +197,13 @@ body {
     width: 32px !important;
     height: 32px !important;
   }
-  #score, .overlay, #gameOverOverlay, #leaderboardOverlay {
+  #score, #livesContainer, .overlay, #gameOverOverlay, #leaderboardOverlay {
     font-size: 1em !important;
     padding: 8px 12px !important;
+  }
+  #livesContainer {
+    top: 12px;
+    left: 12px;
   }
   #mobileControls {
     display: flex;
@@ -207,4 +229,10 @@ body {
 body, html {
   overscroll-behavior: contain;
   touch-action: manipulation;
+}
+
+.external-link {
+  color: #fff;
+  font-family: monospace;
+  text-decoration: none;
 }

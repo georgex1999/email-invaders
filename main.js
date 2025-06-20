@@ -3,15 +3,18 @@ document.addEventListener('DOMContentLoaded', () => {
 	let playerName = '';
 	let currentLevel = 1;
 	let maxLevel = 4;
-	let gameLoop;
-	let collisionLoop;
 	let obstacleSpeed = 3.5;
 	let isGameOver = false;
 	let isWaitingToStart = false;
+	let hasWon = false;
 	const numObstacles = 4;
 	const obstacles = [];
+	let obstaclePositions = [];
 	const PLAYER_START_X = 30;
 	let playerTop = 250; // Track player position globally
+	let animationFrameId;
+	let lives = 3;
+	const HITBOX_PADDING = 8; // Shrinks hitbox by 8px on all sides for fairness
 	
 	const georgeface = document.getElementById('georgeface');
 	const continueButton = document.getElementById('continueButton');
@@ -21,15 +24,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	const gameOverOverlay = document.getElementById('gameOverOverlay');
 	const leaderboardOverlay = document.getElementById('leaderboardOverlay');
 	const scoreElement = document.getElementById('score');
+	const livesContainer = document.getElementById('livesContainer');
+	const winOverlay = document.getElementById('winOverlay');
+	const continueAfterWinButton = document.getElementById('continueAfterWinButton');
 	
 	georgeface.style.left = `${PLAYER_START_X}px`;
 	
 	function createObstacles() {
 		const gameContainer = document.getElementById('gameContainer');
-		const obstacle1 = document.getElementById('obstacle1');
-		obstacles.push(obstacle1);
-		
-		for (let i = 1; i < numObstacles; i++) {
+		for (let i = 0; i < numObstacles; i++) {
 			const obstacle = document.createElement('div');
 			obstacle.className = 'obstacle';
 			obstacle.style.backgroundImage = 'url("./assets/envelope.svg")';
@@ -39,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			obstacle.style.height = '50px';
 			obstacle.style.position = 'absolute';
 			obstacle.style.left = '900px';
-			obstacle.style.top = Math.floor(Math.random() * 500) + 'px';
+			obstacle.style.top = Math.floor(Math.random() * 550) + 'px';
 			gameContainer.appendChild(obstacle);
 			obstacles.push(obstacle);
 		}
@@ -103,6 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		obstacleSpeed = 3.5;
 		isGameOver = false;
 		isWaitingToStart = false;
+		hasWon = false;
+		lives = 3;
 		
 		document.getElementById('startOverlay').style.display = 'none';
 		document.getElementById('loadingScreen').style.display = 'none';
@@ -111,106 +116,102 @@ document.addEventListener('DOMContentLoaded', () => {
 		
 		georgeface.style.top = '250px';
 		georgeface.style.left = `${PLAYER_START_X}px`;
-		georgeface.style.backgroundImage = 'url("./assets/gl-face.png")';
 		
 		if (obstacles.length === 0) {
 			createObstacles();
 		}
 		
+		obstaclePositions = []; // Clear and reset positions
 		obstacles.forEach((obstacle, index) => {
-			obstacle.style.left = (900 + (index * 200)) + 'px';
+			const startLeft = 900 + (index * 200);
+			obstacle.style.left = startLeft + 'px';
 			obstacle.style.top = Math.floor(Math.random() * 500) + 'px';
+			obstaclePositions.push(startLeft);
 		});
 		
 		updateLevel(1);
 		scoreElement.textContent = 'Score: 0';
+		updateLivesDisplay();
 		
-		if (gameLoop) clearInterval(gameLoop);
-		if (collisionLoop) clearInterval(collisionLoop);
+		if (animationFrameId) {
+			cancelAnimationFrame(animationFrameId);
+		}
 		
 		showWelcomeMessage();
 	}
 
-	function moveObstacles() {
-		const positions = obstacles.map(obstacle => parseInt(obstacle.style.left) || 900);
-		const speeds = obstacles.map((_, index) => {
-			let baseSpeed = obstacleSpeed;
-			let variation;
-			switch(currentLevel) {
-				case 1:
-					variation = index * 0.4;
-					break;
-				case 2:
-					variation = index * 0.5;
-					break;
-				case 3:
-					variation = index * 0.7;
-					break;
-				case 4:
-					variation = index * 0.9;
-					break;
-			}
-			return baseSpeed + variation;
-		});
-		
+	function moveAndCollideObstacles() {
+		if (isGameOver || isWaitingToStart) return;
+
 		playerTop = parseInt(georgeface.style.top) || 250;
-		
-		// Movement loop - handles obstacle movement
-		gameLoop = setInterval(() => {
-			if (isGameOver || isWaitingToStart) return;
+		const playerBox = {
+			left: PLAYER_START_X + HITBOX_PADDING,
+			right: PLAYER_START_X + 50 - HITBOX_PADDING,
+			top: playerTop + HITBOX_PADDING,
+			bottom: playerTop + 50 - HITBOX_PADDING,
+		};
+
+		for (let i = 0; i < obstacles.length; i++) {
+			let currentLeft = obstaclePositions[i];
+			let baseSpeed = obstacleSpeed;
+			let variation = 0;
+			switch(currentLevel) {
+				case 1: variation = i * 0.4; break;
+				case 2: variation = i * 0.5; break;
+				case 3: variation = i * 0.7; break;
+				case 4: variation = i * 0.9; break;
+			}
+			let speed = baseSpeed + variation;
+			currentLeft -= speed;
 			
-			obstacles.forEach((obstacle, index) => {
-				positions[index] -= speeds[index];
-				obstacle.style.left = positions[index] + 'px';
-				
-				if (positions[index] <= -50) {
-					const levelSpacing = currentLevel === 1 ? 25 : 50 * currentLevel;
-					positions[index] = 900 + (Math.random() * levelSpacing);
-					obstacle.style.left = positions[index] + 'px';
-					
-					if (currentLevel === 1) {
-						const sections = 4;
-						const sectionHeight = 500 / sections;
-						const randomSection = Math.floor(Math.random() * sections);
-						obstacle.style.top = (randomSection * sectionHeight + Math.random() * 50) + 'px';
-					} else {
-						const verticalRange = 500 - (currentLevel * 50);
-						const verticalOffset = currentLevel * 25;
-						obstacle.style.top = Math.floor(verticalOffset + Math.random() * verticalRange) + 'px';
-					}
-					updateScore();
-				}
-			});
-		}, 16);
-		
-		// Collision detection loop - runs less frequently to reduce flickering
-		collisionLoop = setInterval(() => {
-			if (isGameOver || isWaitingToStart) return;
+			if (currentLeft <= -50) {
+				const levelSpacing = currentLevel === 1 ? 25 : 50 * currentLevel;
+				currentLeft = 900 + Math.random() * levelSpacing;
+				const newObstacleImage = getObstacleImageForLevel(currentLevel);
+				obstacles[i].style.top = Math.round(Math.random() * 550) + 'px';
+				obstacles[i].style.backgroundImage = newObstacleImage;
+				updateScore();
+			}
 			
-			// Update player position
-			playerTop = parseInt(georgeface.style.top) || 250;
+			obstaclePositions[i] = currentLeft;
+			obstacles[i].style.left = Math.round(currentLeft) + 'px';
 			
-			obstacles.forEach((obstacle, index) => {
-				const obstacleTop = parseInt(obstacle.style.top) || 0;
-				const obstacleLeft = parseInt(obstacle.style.left) || 900;
-				
-				// Check collision using position values
-				if (
-					PLAYER_START_X < obstacleLeft + 50 &&
-					PLAYER_START_X + 50 > obstacleLeft &&
-					playerTop < obstacleTop + 50 &&
-					playerTop + 50 > obstacleTop
-				) {
-					gameOver();
-					return;
-				}
-			});
-		}, 32); // Run collision detection at 30fps instead of 60fps
+			const obstacleTop = parseInt(obstacles[i].style.top) || 0;
+			const obstacleBox = {
+				left: Math.round(currentLeft) + HITBOX_PADDING,
+				right: Math.round(currentLeft) + 50 - HITBOX_PADDING,
+				top: obstacleTop + HITBOX_PADDING,
+				bottom: obstacleTop + 50 - HITBOX_PADDING,
+			};
+
+			if (
+				playerBox.left < obstacleBox.right &&
+				playerBox.right > obstacleBox.left &&
+				playerBox.top < obstacleBox.bottom &&
+				playerBox.bottom > obstacleBox.top
+			) {
+				handleCollision();
+				return;
+			}
+		}
+
+		animationFrameId = requestAnimationFrame(moveAndCollideObstacles);
+	}
+
+	function moveObstacles() {
+		if (isGameOver || isWaitingToStart) return;
+		if (animationFrameId) cancelAnimationFrame(animationFrameId);
+		animationFrameId = requestAnimationFrame(moveAndCollideObstacles);
 	}
 
 	function updateLevel(level) {
 		const container = document.getElementById('gameContainer');
+		const newObstacleImage = getObstacleImageForLevel(level);
 		
+		obstacles.forEach(obstacle => {
+			obstacle.style.backgroundImage = newObstacleImage;
+		});
+
 		switch(level) {
 			case 1:
 				container.style.background = 'url("./assets/level1-background.png") no-repeat center center';
@@ -241,10 +242,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function checkLevelProgress() {
 		const newLevel = Math.floor(score / 30) + 1;
+		
 		if (newLevel <= maxLevel && newLevel !== currentLevel) {
 			currentLevel = newLevel;
 			updateLevel(currentLevel);
 			
+			// Pause the game and show level message
+			isWaitingToStart = true;
 			const levelMessage = document.createElement('div');
 			levelMessage.style.position = 'absolute';
 			levelMessage.style.top = '50%';
@@ -259,33 +263,22 @@ document.addEventListener('DOMContentLoaded', () => {
 			levelMessage.style.textAlign = 'center';
 			levelMessage.style.zIndex = '1000';
 			
+			let messageText = '';
 			if (currentLevel === 2) {
-				levelMessage.innerHTML = 'Level 2!<br><br>Score 90 points to reach the next level<br><br>Press up or down arrow to continue';
-				georgeface.style.backgroundImage = 'url("./assets/tl-face.png")';
-				isWaitingToStart = true;
+				messageText = 'Level 2!<br><br>Score 60 points to reach the next level<br><br>Press up or down arrow to continue';
 			} else if (currentLevel === 3) {
-				levelMessage.innerHTML = 'Level 3!<br><br>Score 120 points to reach the final level<br><br>Press up or down arrow to continue';
-				georgeface.style.backgroundImage = 'url("./assets/ll-face.png")';
-				isWaitingToStart = true;
+				messageText = 'Level 3!<br><br>Score 90 points to reach the final level<br><br>Press up or down arrow to continue';
 			} else if (currentLevel === 4) {
-				levelMessage.innerHTML = 'Final Level!<br><br>How far can you go?<br><br>Press up or down arrow to continue';
-				isWaitingToStart = true;
-			} else {
-				levelMessage.textContent = `Level ${currentLevel}`;
-				levelMessage.style.top = '16px';
-				levelMessage.style.left = '16px';
-				levelMessage.style.transform = 'none';
-				levelMessage.style.padding = '8px 16px';
-				setTimeout(() => levelMessage.remove(), 2000);
-				return;
+				messageText = 'Final Level!<br><br>How far can you go?<br><br>Press up or down arrow to continue';
 			}
+			levelMessage.innerHTML = messageText;
 			
 			const startOnKeyPress = (e) => {
 				if ((e.key === 'ArrowUp' || e.key === 'ArrowDown') && isWaitingToStart) {
 					isWaitingToStart = false;
 					document.removeEventListener('keydown', startOnKeyPress);
 					levelMessage.remove();
-					moveObstacles();
+					moveObstacles(); // Resume game
 				}
 			};
 			
@@ -297,13 +290,44 @@ document.addEventListener('DOMContentLoaded', () => {
 	function updateScore() {
 		score++;
 		scoreElement.textContent = `Score: ${score}`;
+		if (score >= 500 && !hasWon) {
+			showWinScreen();
+		}
 		checkLevelProgress();
+	}
+
+	function handleCollision() {
+		cancelAnimationFrame(animationFrameId);
+		lives--;
+		updateLivesDisplay();
+
+		if (lives > 0) {
+			isWaitingToStart = true;
+			setTimeout(() => {
+				restartCurrentLevel();
+			}, 1000);
+		} else {
+			gameOver();
+		}
+	}
+
+	function restartCurrentLevel() {
+		playerTop = 250;
+		georgeface.style.top = `${playerTop}px`;
+		obstaclePositions = [];
+		obstacles.forEach((obstacle, index) => {
+			const startLeft = 900 + (index * 250); // Increased spacing on restart
+			obstacle.style.left = startLeft + 'px';
+			obstacle.style.top = Math.round(Math.random() * 550) + 'px';
+			obstaclePositions.push(startLeft);
+		});
+		isWaitingToStart = false;
+		moveObstacles();
 	}
 
 	function gameOver() {
 		isGameOver = true;
-		clearInterval(gameLoop);
-		clearInterval(collisionLoop);
+		if (animationFrameId) cancelAnimationFrame(animationFrameId);
 		document.getElementById('finalScore').textContent = `Score: ${score}`;
 		gameOverOverlay.style.display = 'flex';
 		
@@ -312,6 +336,30 @@ document.addEventListener('DOMContentLoaded', () => {
 		leaderboard.sort((a, b) => b.score - a.score);
 		localStorage.setItem('leaderboard', JSON.stringify(leaderboard.slice(0, 10)));
 		updateLeaderboard();
+	}
+
+	function getObstacleImageForLevel(level) {
+		switch (level) {
+			case 2: return 'url("./assets/football.svg")';
+			case 3: return 'url("./assets/raincloud.svg")';
+			case 4: return 'url("./assets/pumpkin.svg")';
+			default: return 'url("./assets/envelope.svg")';
+		}
+	}
+
+	function showWinScreen() {
+		hasWon = true;
+		isWaitingToStart = true;
+		if (winOverlay) {
+			winOverlay.style.display = 'flex';
+		}
+		if (typeof confetti === 'function') {
+			confetti({
+				particleCount: 200,
+				spread: 180,
+				origin: { y: 0.6 }
+			});
+		}
 	}
 
 	continueButton.addEventListener('click', startGame);
@@ -328,6 +376,16 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 	
 	restartButton.addEventListener('click', startGame);
+
+	if (continueAfterWinButton) {
+		continueAfterWinButton.addEventListener('click', () => {
+			if (winOverlay) {
+				winOverlay.style.display = 'none';
+			}
+			isWaitingToStart = false;
+			moveObstacles();
+		});
+	}
 
 	document.addEventListener('keydown', (e) => {
 		if (isGameOver) return;
@@ -386,5 +444,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 			touchStartY = null;
 		});
+	}
+
+	function updateLivesDisplay() {
+		if (livesContainer) {
+			livesContainer.innerHTML = '♥ '.repeat(lives);
+		}
 	}
 });
